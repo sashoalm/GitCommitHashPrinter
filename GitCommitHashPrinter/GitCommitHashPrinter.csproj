@@ -44,9 +44,38 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Version.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>@echo off
+
+echo "Writing Version.cs file..."
+
+@rem Pushd/popd are used to temporarily cd to where the BAT file is.
+pushd $(ProjectDir)
+
+@rem Verify that the command succeeds (i.e. Git is installed and we are in the repo).
+git rev-parse HEAD || exit 1
+
+@rem Syntax for storing a command's output into a variable (see https://stackoverflow.com/a/2340018/492336).
+@rem 'git rev-parse HEAD' returns the commit hash.
+for /f %25%25i in ('git rev-parse HEAD') do set commitHash=%25%25i
+
+@rem Syntax for printing multiline text to a file (see https://stackoverflow.com/a/23530712/492336).
+(
+echo namespace GitCommitHashPrinter
+echo {
+echo     class Version
+echo     {
+echo         public static string CommitHash { get; set; } = "%25commitHash%25";
+echo     }
+echo }
+)&gt;"Version.cs"
+
+popd</PreBuildEvent>
+  </PropertyGroup>
 </Project>

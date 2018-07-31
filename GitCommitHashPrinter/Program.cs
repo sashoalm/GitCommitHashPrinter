@@ -10,6 +10,7 @@ namespace GitCommitHashPrinter
     {
         static void Main(string[] args)
         {
+            Console.WriteLine(Version.CommitHash);
         }
     }
 }
